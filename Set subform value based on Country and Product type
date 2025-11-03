@@ -1,0 +1,44 @@
+var Country = ZDK.Page.getField("Country_List").getValue();
+// log(Country);
+// log("Name - " + field_name);
+// log("value - " + value);
+// log("index - " + index);
+var Payment_Term = ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Payment_Term').getValue();
+var Modelname = ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').getValue();
+var Model_Code = ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').getValue();
+var Color = ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Color').getValue();
+var Select_Plan = ZDK.Page.getSubform("Product_Details_B2C").getField('Select_Plan');
+
+Select_Plan.setCriteria("((Applicable_Location:equals:" + Country + ") and (Payment_Term:equals:" + Payment_Term + ") and (Model_Name:equals:" + Modelname + ")  and (Model_Code:equals:" + Model_Code + "))", { filterOnSearch: true });
+// and (Color:equals:" + Color + ")
+
+if (Country == "Cameroon")
+{
+    ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').setReadOnly(true);
+    ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').setReadOnly(true);
+    if (value == "Vehicle")
+    {
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').setValue('EKON 450');
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').setValue('M1');
+    }
+    else if (value == "Home Charger")
+    {
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').setValue('Not Applicable');
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').setValue('Not Applicable');
+    }
+}
+else if (Country == "Tanzania")
+{
+    ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').setReadOnly(true);
+    ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').setReadOnly(true); 
+    if (value == "Vehicle")
+    {
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').setValue('EKON 450');
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').setValue('M3');
+    }
+    else if (value == "Home Charger")
+    {
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Name').setValue('Not Applicable');
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell('Model_Code').setValue('Not Applicable');
+    }
+}
