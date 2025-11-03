@@ -1,0 +1,129 @@
+var date = new Date();
+var day = ("0" + date.getDate()).slice(-2); // Get day and format with leading zero
+var month = ("0" + (date.getMonth() + 1)).slice(-2); // Get month and format with leading zero
+var year = date.getFullYear().toString().slice(-2) // Get year
+var hours = ("0" + date.getHours()).slice(-2); // Get hours and format with leading zero
+var minutes = ("0" + date.getMinutes()).slice(-2); // Get minutes and format with leading zero
+
+var login_user_id = $Crm.user.id;
+var user = ZDK.Apps.CRM.Users.fetchById(login_user_id);
+var user1 = $Crm.user;
+
+log(user.country);
+var dt2 = new Date();
+// var dateString = dt.toString();
+ var dateString2 = dt2.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+// var dateString3 = dt2.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+ZDK.Page.getForm().setValues({
+    'Created_On': dateString2,
+    'Created_By1': user1.full_name,
+    'Last_Modified_On': dateString2,
+    'Last_Modified_By': user1.full_name,
+
+});
+
+var Country_List = ZDK.Page.getField("Country_List");
+Country_List.setValue(user.country);
+
+var Mobile = ZDK.Page.getField("Mobile");
+
+// var eq_generator = ZDK.Page.getField("Sales_Agent");
+
+var Locality = ZDK.Page.getField("Locality");
+log("Locality - " + Locality);
+var value = ZDK.Page.getField("Country_List").getValue();
+log("Value - " + value);
+
+currency = ZDK.Page.getField("Currency");
+log("Currency - " + currency);
+
+if (value == "Benin")
+{
+    log("Benin -> XOF");
+    currency.setValue("XOF");
+    Mobile.setValue("+229 ");
+}
+
+else if (value == "Togo")
+{
+    log("Togo -> XOF");
+    currency.setValue("XOF");
+    Mobile.setValue("+228".concat(" "));
+}
+
+else if (value == "Kenya")
+{
+     log("Kenya -> KES");
+    currency.setValue("KES");
+    Mobile.setValue("+254".concat(" "));
+}
+
+else if (value == "Rwanda")
+{
+     log("Rwanda -> RWF");
+    currency.setValue("RWF");
+    Mobile.setValue("+250".concat(" "));
+}
+
+else if (value == "Uganda")
+{
+    log("Uganda -> UGX");
+    currency.setValue("UGX");
+    Mobile.setValue("+256".concat(" "));
+}
+
+else if (value == "Nigeria")
+{
+    log("Nigeria -> NGN");
+    currency.setValue("NGN");
+    Mobile.setValue("+234".concat(" "));
+}
+else if (value == "Cameroon")
+{
+    log("Cameroon -> XAF");
+    currency.setValue("XAF");
+    Mobile.setValue("+237".concat(" "));
+}
+else if (value == "Tanzania")
+{
+    log("Tanzania -> TZS");
+    currency.setValue("TZS");
+    Mobile.setValue("+255".concat(" "));
+}
+else
+{
+    log("Currency is not available for - " + value);
+}
+
+// var user = $Crm.user;
+var user_profile = user.profile.name;
+log("Logged in User Profile - " + user_profile);
+if (user_profile != "Administrator") {
+
+    
+    //
+    var Created_On = ZDK.Page.getField("Created_On");
+    Created_On.setReadOnly(true);
+
+    var Created_By1 = ZDK.Page.getField("Created_By1");
+    Created_By1.setReadOnly(true);
+
+
+    var Last_Modified_On = ZDK.Page.getField("Last_Modified_On");
+    Last_Modified_On.setReadOnly(true);
+
+    var Last_Modified_By = ZDK.Page.getField("Last_Modified_By");
+    Last_Modified_By.setReadOnly(true);
+}
+ //
+
+var state = ZDK.Page.getField("State_List").getValue();
+    log("State - " + state);
+
+Locality.setCriteria("((Country:equals:" + value + ") and (State:equals:" + state + "))", { filterOnSearch: true });
+// eq_generator.setCriteria("(Country_List:equals:" + value + ")", { filterOnSearch: true });
+
+ZDK.Page.getField("Asset_Financer_Name").setReadOnly(true);
+ZDK.Page.getField("Country_List").setReadOnly(true);
+ZDK.Page.getField("Are_you_an_existing_customer").setReadOnly(true);
