@@ -1,0 +1,31 @@
+// Function to check if the mobile number is duplicate
+function checkDuplicateMobile() {
+    // Get the mobile number entered by the user
+    var mobileField = ZDK.Page.getField("Mobile"); // Replace with your actual mobile field name
+    var mobileNumber = mobileField.getValue();
+    
+    if (mobileNumber) {
+        // Perform a search in the CRM to find records with the same mobile number
+        ZDK.Apps.CRM.Contacts.searchRecords({
+            criteria: "(Mobile:equals:" + mobileNumber + ")",
+            fields: ["id"]
+        }).then(function(response) {
+            // Check if any records were found
+            if (response.data.length > 0) {
+                // Duplicate mobile number found, show an alert message to the user
+                alert("A record with this mobile number already exists in the CRM. Please use a different mobile number.");
+            }
+        }).catch(function(error) {
+            // Handle any errors during the search
+            console.log("Error occurred while searching for duplicates: " + error);
+        });
+    } else {
+        // Mobile number field is empty
+        alert("Please enter a mobile number.");
+    }
+}
+
+// Call the function when the user tries to save or submit the form
+ZDK.Page.getField("Save_Button").on("click", function() {
+    checkDuplicateMobile();
+});
