@@ -1,0 +1,507 @@
+if (value == null)
+{
+    $Client.refresh({triggerOnLoad: true});
+}
+
+var url = $Client.url;
+log("URL - " + url);
+var Environment = "";
+if (url.includes("sandbox"))
+{
+    log("Sandbox");
+    Environment = "Sandbox"; 
+}
+else
+{
+    log("Production");
+    Environment = "Production";
+}
+log("Environment - " + Environment);
+
+var Are_you_an_existing_customer = ZDK.Page.getField("Are_you_an_existing_customer");
+Are_you_an_existing_customer.setValue("No");
+
+log("Value Entered - " + value);
+var mob_no_length = value.toString().length
+log("Length - " + mob_no_length);
+
+if (mob_no_length >= 14)
+{
+    var cust_flag = false;
+    var eq_flag = false;
+    var cust_yes_eq_yes = false;
+    var cust_yes_eq_no = false;
+    var cust_no_eq_yes = false;
+    var cust_no_eq_no = false;
+    var cust_count = 0;
+    var eq_count = 0;
+    var eq_first = false;
+    var eq_first_id = "";
+    var fetch_eq_id = "";
+
+    // var Are_you_an_existing_customer = ZDK.Page.getField("Are_you_an_existing_customer");
+    // Are_you_an_existing_customer.setValue("No");
+
+    // Search Customer
+    var cust_search_resp = ZDK.Apps.CRM.Contacts.searchByCriteria("(Mobile:equals:" + value + ")");
+    if (cust_search_resp != "")
+    {
+        var cust_found_eq_found = [];
+        var cust_found = [];
+        var cust_eq_link = [];
+    
+        var cust_searched_Count = cust_search_resp.length;
+        log("Customer Found");
+        log("Initial cust_searched_Count - " + cust_searched_Count);
+
+        if (cust_searched_Count >= 1)
+        {
+            for (var i = 0; i < cust_search_resp.length; i++)
+            {
+                // log("Cust - i = " + i);
+                var cust_name = cust_search_resp[i].Full_Name;
+                var cust_mob = cust_search_resp[i].Mobile;
+                var Customer_ID = cust_search_resp[i].Customer_ID;
+                // log("Customer_ID : " + Customer_ID);
+                var cust_id = cust_search_resp[i].id;
+                var encodedCustId = encodeURIComponent(cust_id);
+            
+                if (value == cust_mob)
+                {
+                    log("Customer - Both Mob No are the same.\nCustomer is Exists in our system.");
+                    cust_count = cust_count + 1;
+                    cust_flag = true;
+
+                    var Are_you_an_existing_customer = ZDK.Page.getField("Are_you_an_existing_customer");
+                    if (Customer_ID != "" && Customer_ID != null)
+                    {
+                        Are_you_an_existing_customer.setValue("Yes");
+                    }
+                    else
+                    {
+                        Are_you_an_existing_customer.setValue("No");
+                    }
+
+                    if (Environment == "Production")
+                    {
+                        cust_link = "https://crm.zoho.in/crm/org60029461522/tab/Contacts/" + cust_id;
+                    }
+                    else
+                    {
+                        cust_link = "https://crmsandbox.zoho.in/crm/sandboxybj/tab/Contacts/" + cust_id;
+                    }
+                    
+                    cust_found_msg = '[click here](' + cust_link + ')';
+                    cust_found.push(cust_found_msg);
+                    
+                    // Search Enquiry
+                    var eq_search_resp = ZDK.Apps.CRM.Leads.searchByCriteria("(Mobile:equals:" + value + ")");
+                    if (eq_search_resp != "")
+                    {
+                        var eq_searched_Count = eq_search_resp.length;
+                        log("eq_searched_Count - " + eq_searched_Count);
+
+                        if (eq_searched_Count >= 1)
+                        {
+                            for (var i = 0; i < eq_search_resp.length; i++)
+                            {
+                            
+                                var eq_name = eq_search_resp[i].Full_Name;
+                                var eq_mob = eq_search_resp[i].Mobile;
+                                var eq_id = eq_search_resp[i].id;
+                            
+                                log("Enquiry -> Value Entered - " + value + " vs Value Found - " + eq_mob);
+                                if (value == eq_mob)
+                                {
+                                    log("Customer and Enquiry both Found");
+                                    eq_count = eq_count + 1;
+                                    eq_flag = true;
+                                    cust_yes_eq_yes = true;
+                                    log("Both Mob No are the same.\nEnquiry is Exists in our system.");
+
+                                    if (Environment == "Production")
+                                    {
+                                        var eq_link = "https://crm.zoho.in/crm/org60029461522/tab/Leads/" + eq_id;
+                                    }
+                                    else
+                                    {
+                                        var eq_link = "https://crmsandbox.zoho.in/crm/sandboxybj/tab/Leads/" + eq_id;
+                                    }
+                                    
+                                    log("Enquiry Link - " + eq_link);
+
+                                
+                                    cust_eq_link.push(eq_link);
+
+                                    cust_found_eq_found_msg = 'Enquiry No ' + eq_count + ' : [' + eq_name + '](' + eq_link + ')\n';
+                                    cust_found_eq_found.push(cust_found_eq_found_msg);
+                                
+                                    
+                                }
+                            }
+                            log("Total Enquiry Count - " + eq_count);
+                            var cust_finalMessage = cust_found.join('\n\n');
+                            var finalMessage = cust_found_eq_found.join('\n\n');
+                            var eq_finalMessage = '';
+                        
+                            log("After EQ For - Cust ID - " + cust_id);
+                        
+                            // ZDK.Client.showAlert('You can ' + cust_finalMessage + ' to view the customer’s 360° profile.\nor\nTo review existing enquiries in a new tab and to continue with the current enquiry, \nplease click the button below.', 'Existing Customer Found!', 'Continue');
+
+                            var button = ZDK.Client.showConfirmation('*Existing Customer Found!* \n\nYou can ' + cust_finalMessage + ' to view the customer’s 360° profile.\nor\nTo review existing enquiries, please click on *Show Enquiry* button\nor\nTo continue with the current enquiry, please click on *Continue* button', 'Show Enquiry', 'Continue');
+
+                            if (button == true)
+                            {
+                                var enquiry = ZDK.Client.openPopup({
+                                api_name: 'list_view', type: 'widget', header: 'List of enquiries with the same number', animation_type: 1, height: '570px', width: '1359px', left: '120px'
+                                }, {
+                                    mobile: value
+                                });
+                            }
+
+                            // Change 2
+                            log("cust_eq_link list - " + cust_eq_link);
+                            // for (var i = 0; i < cust_eq_link.length; i++)
+                            // {
+                            //     $Client.openURL(cust_eq_link[i]);
+                            // }
+
+                        
+                            if (cust_yes_eq_yes == true)
+                            {
+                                var cust_eq_resp = ZDK.Apps.CRM.Contacts.fetchById(cust_id);
+                                if (cust_eq_resp != undefined)
+                                {
+                                    log("Cust_EQ_Response - " + cust_eq_resp.Full_Name);
+                                    ZDK.Page.getForm().setValues({
+                                    'First_Name': cust_eq_resp.First_Name,
+                                    'Last_Name': cust_eq_resp.Last_Name,
+                                    // 'Full_Name': cust_eq_resp.Full_Name,
+                                    // 'Customer_Type': cust_eq_resp.Customer_Type,
+                                    'Product_Category': cust_eq_resp.Product_Category,
+                                    'Choose_Product_Category': cust_eq_resp.Choose_Product_Category,
+                                    'National_ID': cust_eq_resp.National_ID,
+                                    'Enquiry_Generator': { id: cust_eq_resp.Enquiry_Generator_Lookup_Id },
+                                    'Locality': { id: cust_eq_resp.Locality_Lookup_Id },
+                                    'Birth_Date': cust_eq_resp.Date_of_Birth,
+                                    'Gender': cust_eq_resp.Gender,
+                                    'Latitude': cust_eq_resp.Latitude,
+                                    'Currency': cust_eq_resp.Currency,
+                                    'Street': cust_eq_resp.Street,
+                                    'Zip_Code': cust_eq_resp.Zip_Code,  
+                                    // 'City': cust_eq_resp.City,
+                                    'Verbal_Language': cust_eq_resp.Verbal_Language,
+                                    'Longitude': cust_eq_resp.Longitude,
+                                    'Country_Code': cust_eq_resp.Country_Code,
+                                    // 'State': cust_eq_resp.State,
+                                    // 'Country': cust_eq_resp.Country,
+                                    'Building': cust_eq_resp.Building,
+                                    'Description': cust_eq_resp.Description,
+                                    'Contact_Reference_1': cust_eq_resp.Contact_Reference_1,
+                                    // 'Enquiry_ID': cust_eq_resp.Enquiry_ID,
+                                    'Salutation': cust_eq_resp.Salutation,
+                                    'Product_Code': cust_eq_resp.Product_Code,
+                                    'Entity_Type': cust_eq_resp.Entity_Type,
+                                    'Specify_Other_Entity_Type': cust_eq_resp.Specify_Other_Entity_Type,
+                                    'Use_Type': cust_eq_resp.Use_Type,
+                                    'State_List': cust_eq_resp.State_List,
+                                    'Vehicle_Type': cust_eq_resp.Vehicle_Type,
+                                    'Sale_Type': cust_eq_resp.Sale_Type,
+                                    'Country_List': cust_eq_resp.Country_List,
+                                    'Lead_Source': cust_eq_resp.Lead_Source,
+                                    'SMS_Language': cust_eq_resp.SMS_Language 
+                                    });
+
+
+                                    if (cust_eq_resp.Account_Name_Lookup_Id != null)
+                                    {
+                                        var Company = ZDK.Page.getField("Company");
+                                        var account_resp = ZDK.Apps.CRM.Accounts.fetchById(cust_eq_resp.Account_Name_Lookup_Id);
+                                        if (account_resp != undefined)
+                                        {
+                                            Company.setValue(account_resp.Account_Name);
+                                        }
+                                    }
+
+                                    if (cust_eq_resp.Locality_Lookup_Id != null)
+                                    {
+                                        var Locality = ZDK.Page.getField("Locality");
+                                        locality_id = String(cust_eq_resp.Locality_Lookup_Id);
+                                        log("Locality - " + locality_id);
+
+                                        var locality_resp = ZDK.Apps.CRM.Locality.fetchById(locality_id);
+                                        if (locality_resp != undefined)
+                                        {
+                                            var locality_name = locality_resp.Name;
+                                            log("Locality Name - " + locality_name);
+                                            Locality.setValue({ id: locality_id, name:  locality_name});
+
+                                        }
+                                    }
+
+                                
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log("Customer Found but Enquiry Not Found");
+                        cust_yes_eq_no = true;
+
+
+                        var finalMessage = cust_found.join('\n\n');
+                    
+                        ZDK.Client.showAlert('You can ' + finalMessage + ' to view the customer’s 360° profile.\nor\nTo continue and create a new enquiry, click the button below.', 'Existing Customer Found!', 'Continue');
+
+                        ZDK.Page.getForm().setValues({
+                            'First_Name': cust_search_resp[i].First_Name,
+                            'Last_Name': cust_search_resp[i].Last_Name,
+                            'Full_Name': cust_search_resp[i].Full_Name,
+                        
+                            'Product_Category': cust_search_resp[i].Product_Category,
+                            'Choose_Product_Category': cust_search_resp[i].Choose_Product_Category,
+                            'National_ID': cust_search_resp[i].National_ID,
+                            'Enquiry_Generator': { id: cust_search_resp[i].Enquiry_Generator_Lookup_Id },
+                            'Locality': { id: cust_search_resp[i].Locality_Lookup_Id },
+                            'Birth_Date': cust_search_resp[i].Date_of_Birth,
+                            'Gender': cust_search_resp[i].Gender,
+                            'Latitude': cust_search_resp[i].Latitude,
+                            'Currency': cust_search_resp[i].Currency,
+                            'Street': cust_search_resp[i].Street,
+                            'Zip_Code': cust_search_resp[i].Zip_Code,  
+                        
+                            'Verbal_Language': cust_search_resp[i].Verbal_Language,
+                            'Longitude': cust_search_resp[i].Longitude,
+                            'Country_Code': cust_search_resp[i].Country_Code,
+                        
+                            'Building': cust_search_resp[i].Building,
+                            'Description': cust_search_resp[i].Description,
+                            'Contact_Reference_1': cust_search_resp[i].Contact_Reference_1,
+                        
+                            'Salutation': cust_search_resp[i].Salutation,
+                            'Product_Code': cust_search_resp[i].Product_Code,
+                            'Entity_Type': cust_search_resp[i].Entity_Type,
+                            'Specify_Other_Entity_Type': cust_search_resp[i].Specify_Other_Entity_Type,
+                            'Use_Type': cust_search_resp[i].Use_Type,
+                            'State_List': cust_search_resp[i].State_List,
+                            'Vehicle_Type': cust_search_resp[i].Vehicle_Type,
+                            'Sale_Type': cust_search_resp[i].Sale_Type,
+                            'Country_List': cust_search_resp[i].Country_List,
+                            'Lead_Source': cust_search_resp[i].Lead_Source,
+                            'SMS_Language': cust_search_resp[i].SMS_Language 
+                        });
+
+                        if (cust_search_resp[i].Account_Name_Lookup_Id != null)
+                        {
+                            var Company = ZDK.Page.getField("Company");
+                            var account_resp = ZDK.Apps.CRM.Accounts.fetchById(cust_search_resp[i].Account_Name_Lookup_Id);
+                            if (account_resp != undefined)
+                            {
+                                Company.setValue(account_resp.Account_Name);
+                            }
+                        }
+
+                        if (cust_search_resp[i].Locality_Lookup_Id != null)
+                        {
+                            var Locality = ZDK.Page.getField("Locality");
+                            locality_id = String(cust_search_resp[i].Locality_Lookup_Id);
+                            log("Locality - " + locality_id);
+
+                            var locality_resp = ZDK.Apps.CRM.Locality.fetchById(locality_id);
+                            if (locality_resp != undefined)
+                            {
+                                var locality_name = locality_resp.Name;
+                                log("Locality Name - " + locality_name);
+                                Locality.setValue({ id: locality_id, name:  locality_name});
+
+                            }
+                        }
+                        
+                    
+                    }
+                    
+                }
+
+            }
+            log("Total Customer Count - " + cust_count);
+        }
+    }
+    else
+    {
+        log("Customer Not Found");
+        var only_eq_found = [];
+        var eq_link_list = [];
+        var Are_you_an_existing_customer = ZDK.Page.getField("Are_you_an_existing_customer");
+        Are_you_an_existing_customer.setValue("No");
+    
+        var eq_search_resp = ZDK.Apps.CRM.Leads.searchByCriteria("(Mobile:equals:" + value + ")");
+        if (eq_search_resp != "")
+        {
+            var eq_searched_Count = eq_search_resp.length;
+            log("eq_searched_Count - " + eq_searched_Count);
+
+            if (eq_searched_Count >= 1)
+            {
+                for (var i = 0; i < eq_search_resp.length; i++)
+                {
+                
+                    var eq_name = eq_search_resp[i].Full_Name;
+                    var eq_mob = eq_search_resp[i].Mobile;
+                    var eq_id = eq_search_resp[i].id;
+                
+                    log("Enquiry -> Value Entered - " + value + " vs Value Found - " + eq_mob);
+                    if (value == eq_mob)
+                    {
+                        log("Customer Not Found but Enquiry Found");
+                        eq_count = eq_count + 1;
+                        eq_flag = true;
+                        cust_no_eq_yes = true;
+                        log("Both Mob No are the same.\nEnquiry is Exists in our system.");
+
+                        if (Environment == "Production")
+                        {
+                            var eq_link = "https://crm.zoho.in/crm/org60029461522/tab/Leads/" + eq_id;
+                        }
+                        else
+                        {
+                            var eq_link = "https://crmsandbox.zoho.in/crm/sandboxybj/tab/Leads/" + eq_id;
+                        }
+
+                        log("Enquiry Link - " + eq_link);
+
+                    
+                        eq_link_list.push(eq_link);
+
+                        only_eq_found_msg = 'Enquiry No ' + eq_count + ' : [' + eq_name + '](' + eq_link + ')\n';
+                        only_eq_found.push(only_eq_found_msg);
+                    
+                        if (eq_first == false)
+                        {
+                            eq_first_id = eq_id;
+                            eq_first = true;
+                            log("EQ First ID - " + eq_first_id)
+                        }
+                        
+                    }
+                }
+                log("Total Enquiry Count - " + eq_count);
+                if (eq_count > 0)
+                {
+                    var finalMessage = only_eq_found.join('\n\n');
+            
+                // ZDK.Client.showAlert('To review existing enquiries in a new tab and to continue with the current enquiry, \nplease click the button below.', 'Existing Enquiry Found!', 'Continue');
+                var button = ZDK.Client.showConfirmation('*Existing Enquiry Found!*\nTo review existing enquiries, please click on *Show Enquiry* button\nor\nTo continue with the current enquiry, please click on *Continue* button', 'Show Enquiry', 'Continue');
+
+                if (button == true)
+                {
+                    var enquiry = ZDK.Client.openPopup({
+                    api_name: 'list_view', type: 'widget', header: 'List of enquiries with the same number', animation_type: 1, height: '570px', width: '1359px', left: '120px'
+                    }, {
+                        mobile: value
+                    });
+                }
+
+            
+                log("eq_link_list - " + eq_link_list);
+                // for (var i = 0; i < eq_link_list.length; i++)
+                // {
+                //     $Client.openURL(eq_link_list[i]);
+                // }
+                
+
+                    if (eq_first_id != "")
+                    {
+                        log("Fetching First EQ ID");
+                        fetch_eq_id = eq_first_id;
+                    }
+                    else
+                    {
+                        log("Fetching One EQ ID");
+                        fetch_eq_id = eq_id;
+                    }
+
+                    only_eq_resp = ZDK.Apps.CRM.Leads.fetchById(fetch_eq_id);
+                    if (only_eq_resp != undefined)
+                    {
+                        ZDK.Page.getForm().setValues({
+                    
+                        'First_Name': only_eq_resp.First_Name,
+                        'Last_Name': only_eq_resp.Last_Name,
+                    
+                        'Product_Category': only_eq_resp.Product_Category,
+                        'Choose_Product_Category': only_eq_resp.Choose_Product_Category,
+                        'Company': only_eq_resp.Company,
+                        'Birth_Date': only_eq_resp.Birth_Date,
+                        'Latitude': only_eq_resp.Latitude,
+                        'Gender': only_eq_resp.Gender,
+                        'Currency': only_eq_resp.Currency,
+                        'Street': only_eq_resp.Street,
+                        'Zip_Code': only_eq_resp.Zip_Code,
+                    
+                        'Verbal_Language': only_eq_resp.Verbal_Language,
+                        'Longitude': only_eq_resp.Longitude,
+                        'Country_Code': only_eq_resp.Country_Code,
+                        
+                        'Building': only_eq_resp.Building,
+                        'Description': only_eq_resp.Description,
+                        'Deal_Type': only_eq_resp.Deal_Type,
+                        'Contact_Reference_1': only_eq_resp.Contact_Reference_1,
+                    
+                        'Reason': only_eq_resp.Reason,
+                        'Lead_Status': only_eq_resp.Lead_Status,
+                        'Product_Code': only_eq_resp.Product_Code,
+                        'Entity_Type': only_eq_resp.Entity_Type,
+                        'Specify_Other_Entity_Type': only_eq_resp.Specify_Other_Entity_Type,
+                        'National_ID': only_eq_resp.National_ID,
+                        'Use_Type': only_eq_resp.Use_Type,
+                        'Country_List': only_eq_resp.Country_List,
+                        'State_List': only_eq_resp.State_List,
+                        'Vehicle_Type': only_eq_resp.Vehicle_Type,
+                        'Mobile': only_eq_resp.Mobile,
+                        'Sale_Type': only_eq_resp.Sale_Type,
+                        'Lead_Source': only_eq_resp.Lead_Source,
+                        'SMS_Language': only_eq_resp.SMS_Language
+                        });
+
+                        if (only_eq_resp.Locality_Lookup_Id != null)
+                        {
+                            var Locality = ZDK.Page.getField("Locality");
+                            locality_id = String(only_eq_resp.Locality_Lookup_Id);
+                            log("Locality - " + locality_id);
+
+                            var locality_resp = ZDK.Apps.CRM.Locality.fetchById(locality_id);
+                            if (locality_resp != undefined)
+                            {
+                                var locality_name = locality_resp.Name;
+                                log("Locality Name - " + locality_name);
+                                Locality.setValue({ id: locality_id, name:  locality_name});
+
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        else
+        {
+            log("Customer and Enquiry both Not Found");
+        }
+    }
+
+
+    if (cust_flag == true)
+    {
+        log("End -> Customer Exists");
+    }
+    else
+    {
+        log("End -> Customer Not Exists");
+    }
+
+}
+else
+{
+    ZDK.Page.showMessage("Please enter a valid mobile number.",{ type: 'warning' });
+}
