@@ -1,0 +1,116 @@
+//
+var date = new Date();
+var day = ("0" + date.getDate()).slice(-2); // Get day and format with leading zero
+var month = ("0" + (date.getMonth() + 1)).slice(-2); // Get month and format with leading zero
+var year = date.getFullYear().toString().slice(-2) // Get year
+var hours = ("0" + date.getHours()).slice(-2); // Get hours and format with leading zero
+var minutes = ("0" + date.getMinutes()).slice(-2); // Get minutes and format with leading zero
+// var seconds = ("0" + date.getSeconds()).slice(-2);
+var SA_ID = "SA" + day + month + year + hours + minutes;
+log("SA_ID- " + SA_ID)
+var dt = new Date();
+var dateString = dt.toString();
+var dt2 = new Date();
+var dateString2 = dt2.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+var user = $Crm.user;
+var login_user_id = $Crm.user.id;
+user1 = ZDK.Apps.CRM.Users.fetchById(login_user_id);
+ZDK.Page.getForm().setValues({
+    'Created_On': dateString,
+    'Created_By1': user.full_name,
+    'Last_Modified_On': dateString,
+    'Last_Modified_By': user.full_name,
+    'Country_List': user1.country,
+    'Name': SA_ID,
+    })
+var user = $Crm.user;
+var user_profile = user.profile.name;
+log("Logged in User Profile - " + user_profile);
+if (user_profile != "Administrator") {
+    var Created_On = ZDK.Page.getField("Created_On");
+    Created_On.setReadOnly(true);
+
+    var Created_By1 = ZDK.Page.getField("Created_By1");
+    Created_By1.setReadOnly(true);
+
+    var Last_Modified_On = ZDK.Page.getField("Last_Modified_On");
+    Last_Modified_On.setVisibility(false);
+
+    var Last_Modified_By  = ZDK.Page.getField("Last_Modified_By");
+    Last_Modified_By.setVisibility(false);
+
+    // var Company_ID = ZDK.Page.getField("Passport_Size_Photo");
+    // Company_ID.setVisibility(false);
+
+    // var Customer_ID = ZDK.Page.getField("Identification_Certificate");
+    // Customer_ID.setVisibility(false);
+
+    // var Wallet_ID = ZDK.Page.getField("Address_Proof");
+    // Wallet_ID.setVisibility(false);
+
+    // var Product_ID = ZDK.Page.getField("Criminal_Record_Verification_Certificate");
+    // Product_ID.setVisibility(false);
+
+    // var Company = ZDK.Page.getField("Driving_License");
+    // Company.setVisibility(false);
+
+    // var Customer = ZDK.Page.getField("Witness_Card");
+    // Customer.setVisibility(false);
+
+}
+//
+var login_user_id = $Crm.user.id;
+user = ZDK.Apps.CRM.Users.fetchById(login_user_id);
+log(user.country);
+var Country_List = ZDK.Page.getField("Country_List");
+Country_List.setValue(user.country);
+
+var eq_generator = ZDK.Page.getField("Enquiry_Generator");
+
+var Locality = ZDK.Page.getField("Locality");
+log("Locality - " + Locality);
+var value = ZDK.Page.getField("Country_List").getValue();
+log("Value - " + value);
+
+currency = ZDK.Page.getField("Currency");
+log("Currency - " + currency);
+
+if (value == "Benin" || value == "Togo")
+{
+    log("Benin/Togo -> XOF");
+    currency.setValue("XOF");
+}
+
+else if (value == "Kenya")
+{
+     log("Kenya -> KES");
+    currency.setValue("KES");
+}
+
+else if (value == "Rwanda")
+{
+     log("Rwanda -> RWF");
+    currency.setValue("RWF");
+}
+
+else if (value == "Uganda")
+{
+     log("Uganda -> UGX");
+    currency.setValue("UGX");
+}
+
+else if (value == "Nigeria")
+{
+     log("Nigeria -> NGN");
+    currency.setValue("NGN");
+}
+else
+{
+    log("Currency is not available for - " + value);
+}
+
+var state = ZDK.Page.getField("State_List").getValue();
+log("State - " + state);
+
+Locality.setCriteria("((Country:equals:" + value + ") and (State:equals:" + state + "))", { filterOnSearch: true });
+eq_generator.setCriteria("(Country_List:equals:" + value + ")", { filterOnSearch: true });
