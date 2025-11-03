@@ -1,0 +1,12 @@
+log(field_name);
+log(value);
+log(index);
+if (field_name == "Quantity") {
+    const regex = /^[0-9]+$/;
+    if (value != null && value != "" && !regex.test(value)) {
+        // ZDK.Client.showAlert("Please enter Valid Quantity");
+        ZDK.Page.getSubform('Product_Details_B2C').getRow(index).getCell(field_name).showError("Please enter Valid Quantity")
+        ZDK.Client.showMessage("Please enter a valid quantity for row:  " + index, { type: "error" });
+        
+    }
+}
