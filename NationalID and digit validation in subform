@@ -1,0 +1,31 @@
+let nationalID = ZDK.Page.getField("National_ID");
+let nationalID_value = nationalID.getValue();
+console.log("NationalID--->", nationalID_value);
+
+// Regex to allow only letters and numbers (alphanumeric)
+let regex = /^[A-Za-z0-9 ]+$/;
+
+if (nationalID_value != null) {
+    if (!regex.test(nationalID_value)) {
+        nationalID.showError("National ID can only contain alphabets and numbers.");
+        return false;
+    }
+}
+
+// Get the subform 'Product_Details_B2C'
+var subform = ZDK.Page.getField('Product_Details_B2C').getValue();
+
+if (subform != null) {
+    for (var i = 0; i < subform.length; i++) {
+        var line_item = JSON.parse(JSON.stringify(subform[i]));
+        var quantity = line_item.Quantity;
+
+        // Regex to check for alphabet characters
+        var hasAlphabets = /[A-Za-z]/.test(quantity);
+
+        if (hasAlphabets) {
+            ZDK.Client.showAlert("Alphabet letters are not allowed in the Subform Quantity field (Row " + (i + 1) + "). Please correct it before saving.");
+            return false;
+        }
+    }
+}
