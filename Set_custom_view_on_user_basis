@@ -1,0 +1,33 @@
+var user = $Crm.user;
+var login_user_id = $Crm.user.id;
+user = ZDK.Apps.CRM.Users.fetchById(login_user_id);
+var country = user.country;
+var user_profile = user.profile.name;
+log("Logged in User Profile - " + user_profile);
+if (user_profile != "Administrator") {
+    if (country == "Cameroon") {
+
+        ZDK.Page.getComponent("list-custom-view").setOptions([{ id: "755376000028186855" }]);
+
+    }
+    if (country == "Tanzania") {
+
+        ZDK.Page.getComponent("list-custom-view").setOptions([{ id: "755376000028186873" }]);
+
+    }
+    if (country == "Uganda") {
+
+        ZDK.Page.getComponent("list-custom-view").setOptions([{ id: "755376000028747573" }]);
+
+    }
+    if (country == "Kenya") {
+
+        ZDK.Page.getComponent("list-custom-view").setOptions([{ id: "755376000028747932" }]);
+
+    }
+    if (country == "Benin") {
+
+        ZDK.Page.getComponent("list-custom-view").setOptions([{ id: "755376000036137737" }]);
+
+    }
+}
