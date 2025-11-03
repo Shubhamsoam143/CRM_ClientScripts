@@ -1,0 +1,65 @@
+var Country = ZDK.Page.getField("Country_List").getValue();
+log("Country : " + Country);
+
+if (Country == "Kenya")
+{
+    var Mobile = ZDK.Page.getField("Mobile").getValue();
+    var regex = /^\+254\s\d{9}$/;  // Check if it starts with +254, followed by a space, then 9 digits
+
+    if (!regex.test(Mobile)) {
+        ZDK.Page.showMessage("Please enter a valid mobile number.",{ type: 'warning' });
+        return false;
+    }
+    return true;
+}
+else if (Country == "Uganda")
+{
+    var Mobile = ZDK.Page.getField("Mobile").getValue();
+    var regex = /^\+256\s\d{9}$/;  // Check if it starts with +256, followed by a space, then 9 digits
+
+    if (!regex.test(Mobile)) {
+        ZDK.Page.showMessage("Please enter a valid mobile number.",{ type: 'warning' });
+        return false;
+    }
+    return true;
+}
+else if (Country == "Cameroon")
+{
+    var Mobile = ZDK.Page.getField("Mobile").getValue();
+    var regex = /^\+237\s\d{9}$/; // Check if it starts with +237, followed by a space, then 9 digits
+    if (!regex.test(Mobile)) {
+        ZDK.Page.showMessage("Please enter a valid mobile number.", { type: 'warning' });
+        return false;
+    }
+    return true;
+}
+else if (Country == "Tanzania")
+{
+    var Mobile = ZDK.Page.getField("Mobile").getValue();
+    var regex = /^\+255\s\d{9}$/; // Check if it starts with +255, followed by a space, then 9 digits
+    if (!regex.test(Mobile)) {
+        ZDK.Page.showMessage("Please enter a valid mobile number.", { type: 'warning' });
+        return false;
+    }
+    return true;
+}
+else if (Country == "Rwanda")
+{
+    var Mobile = ZDK.Page.getField("Mobile").getValue();
+    var regex = /^\+250\s\d{9}$/; // Check if it starts with +250, followed by a space, then 9 digits
+    if (!regex.test(Mobile)) {
+        ZDK.Page.showMessage("Please enter a valid mobile number.", { type: 'warning' });
+        return false;
+    }
+    return true;
+}
+else if (Country == "Benin")
+{
+    var Mobile = ZDK.Page.getField("Mobile").getValue();
+    var regex = /^\+229\s\d{9}$/; // Check if it starts with +229, followed by a space, then 9 digits
+    if (!regex.test(Mobile)) {
+        ZDK.Page.showMessage("Please enter a valid mobile number.", { type: 'warning' });
+        return false;
+    }
+    return true;
+}
