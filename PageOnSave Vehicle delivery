@@ -1,0 +1,141 @@
+console.clear();
+var result = 0;
+let form = ZDK.Page.getForm();
+console.log("FormDetails",form);
+let formValues = form.getValues();
+console.log("FormValuesDetails", formValues);
+
+let veh_inv = formValues.Vehicle;
+console.log("Vehicle Details", veh_inv);
+// let veh_id = veh_inv["id"];
+console.log("Vehicle Inventory ID : ", veh_inv.id);
+
+let vehicle = ZDK.Apps.CRM.Vehicle.fetchById(veh_inv.id);
+console.log("Vehicle Inventory Details : ", vehicle);
+
+let veh_360 = vehicle._Select_Vehicle_360_Lookup_Id;
+console.log("Vehicle 360 ID : ", veh_360);
+
+let vehicle_360 = ZDK.Apps.CRM.Vehicle_Transactions.fetchById(veh_360);
+console.log("Vehicle 360 Details : ", vehicle_360);
+let veh_status = vehicle_360.Vehicle_Status
+console.log("Vehicle Status : ", veh_status);
+if (veh_status !== "Warehouse")
+{
+    let vehField = ZDK.Page.getField("Vehicle");  
+    vehField.showError('Vehicle Status should be Warehouse');
+    result = 1;
+    // return false;
+}
+
+if (formValues.Select_Battery_Size === "Large")
+{
+    console.log("Large Battery type");
+    let batt_inv = formValues.Select_Primary_Battery;
+    console.log("Battery Details", batt_inv);
+    console.log("Battery Inventory ID : ", batt_inv.id);
+
+    let battery = ZDK.Apps.CRM.Battery.fetchById(batt_inv.id);
+    console.log("Battery Inventory Details : ", battery);
+
+    let batt_360 = battery._Select_Battery_360_Lookup_Id;
+    console.log("Battery 360 ID : ", batt_360);
+
+    let battery_360 = ZDK.Apps.CRM.Battery_Transactions.fetchById(batt_360);
+    console.log("Battery 360 Details : ", battery_360);
+    let batt_status = battery_360.Battery_Status
+    console.log("Battery Status : ", batt_status);
+
+    if (batt_status !== "Inventory") {
+        let battField = ZDK.Page.getField("Select_Primary_Battery");
+        battField.showError('Battery Status should be Inventory');
+        result = 1;
+        // return false;
+    }
+
+    if (veh_status === "Warehouse" && batt_status === "Inventory") {
+        console.log("Allowed to save.");
+
+    }
+    else {
+        ZDK.Client.showMessage('Vehicle Status should be Warehouse and Battery Status should be Inventory', {
+            type: 'error'
+        });
+        console.log("Failed to save.");
+        result = 1;
+        // return false;
+    }
+}
+else if (formValues.Select_Battery_Size === "Small")
+{
+    console.log("Small Battery type");
+    let batt_inv = formValues.Select_Primary_Battery;
+    console.log("Battery Details", batt_inv);
+    console.log("Battery Inventory ID : ", batt_inv.id);
+
+    let battery = ZDK.Apps.CRM.Battery.fetchById(batt_inv.id);
+    console.log("Battery Inventory Details : ", battery);
+
+    let batt_360 = battery._Select_Battery_360_Lookup_Id;
+    console.log("Battery 360 ID : ", batt_360);
+
+    let battery_360 = ZDK.Apps.CRM.Battery_Transactions.fetchById(batt_360);
+    console.log("Battery 360 Details : ", battery_360);
+    let batt_status = battery_360.Battery_Status
+    console.log("Battery Status : ", batt_status);
+
+    if (batt_status !== "Inventory") {
+        let battField = ZDK.Page.getField("Select_Primary_Battery");
+        battField.showError('Battery Status should be Inventory');
+        result = 1;
+        // return false;
+    }
+
+    // ----------------Secondary Battery
+    let batt2_inv = formValues.Select_Secondary_Battery;
+    console.log("Battery2 Details", batt2_inv);
+    console.log("Battery2 Inventory ID : ", batt2_inv.id);
+
+    let battery2 = ZDK.Apps.CRM.Battery.fetchById(batt2_inv.id);
+    console.log("Battery2 Inventory Details : ", battery2);
+
+    let batt2_360 = battery._Select_Battery_360_Lookup_Id;
+    console.log("Battery2 360 ID : ", batt2_360);
+
+    let battery2_360 = ZDK.Apps.CRM.Battery_Transactions.fetchById(batt2_360);
+    console.log("Battery2 360 Details : ", battery2_360);
+    let batt2_status = battery2_360.Battery_Status
+    console.log("Battery2 Status : ", batt2_status);
+
+    if (batt2_status !== "Inventory") {
+        let battField2 = ZDK.Page.getField("Select_Secondary_Battery");
+        battField2.showError('Battery Status should be Inventory');
+        result = 1;
+        // return false;
+    }
+
+    if (veh_status === "Warehouse" && batt_status === "Inventory" && batt2_status === "Inventory") {
+        console.log("Allowed to save.");
+    }
+    else {
+        ZDK.Client.showMessage('Vehicle Status should be Warehouse and Battery Statuses should be Inventory', {
+            type: 'error'
+        });
+        console.log("Failed to save.");
+        result = 1;
+    }
+}
+else {
+    ZDK.Client.showMessage('Please select Battery size', {
+            type: 'error'
+        });
+    console.log("Select Battery size");
+}
+if (result == 0) {
+    console.log("Allowed for final Save");
+    return true;
+}
+if (result == 1) {
+    console.log("Not Allowed to Save");
+    return false;
+}
