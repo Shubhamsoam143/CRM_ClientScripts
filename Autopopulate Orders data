@@ -1,0 +1,85 @@
+console.log("Order value", value);
+
+
+if (value != null) {
+    console.log("Order id", value.id);
+    var order = ZDK.Apps.CRM.Orders.fetchById(value.id);
+    console.log("Order Details", order);
+
+    let asset_financier_id = order.Asset_Financer_Lookup_Id;
+    let asset_Financer_Name = order.Asset_Financer_Name;
+    let order_tag = (order.Tag && order.Tag.length > 0) ? order.Tag[0].name : null;
+
+    console.log("Order_tag--->", order_tag);
+    console.log("Asset Financier Id--->", asset_financier_id);
+    console.log("Asset Financier Name-->", asset_Financer_Name);
+
+    if (asset_financier_id != null) {
+
+        var asset = ZDK.Apps.CRM.Asset_Financer.fetchById(asset_financier_id);
+        console.log("AssetResponse---->", asset);
+
+
+            let asset_financer = asset.Name;
+            console.log("Asset financer--->", asset_financer);
+
+            if (order_tag === "External" && asset_Financer_Name === "KCB") {
+                const form = ZDK.Page.getForm();
+
+                form.setValues({
+                    'Asset_Financer': { id: asset_financier_id, name: asset_financer },
+                    'Asset_Financier_Name': asset_Financer_Name,
+                    'ntsaClearance': "Valid",
+                    'yearOfManufacture': 2025,
+                    'Make': "Ekon 450",
+                    'bodyType': "Motorcycle",
+                    'Fuel_Type': "Electric",
+                    'Pickup_Location': "City from Customer"
+                });
+
+            }
+            else {
+                const form = ZDK.Page.getForm();
+
+                form.setValues({
+                    'Asset_Financer': null,
+                    'Asset_Financier_Name': "",
+                    'ntsaClearance': "",
+                    'yearOfManufacture': "",
+                    'Make': "",
+                    'bodyType': "",
+                    'Fuel_Type': "",
+                    'Pickup_Location': ""
+                });
+            }
+        
+    }
+    else {
+        const form = ZDK.Page.getForm();
+
+        form.setValues({
+            'Asset_Financer': null,
+            'Asset_Financier_Name': "",
+            'ntsaClearance': "",
+            'yearOfManufacture': "",
+            'Make': "",
+            'bodyType': "",
+            'Fuel_Type': "",
+            'Pickup_Location': ""
+        });
+    }
+}
+else {
+    const form = ZDK.Page.getForm();
+
+        form.setValues({
+            'Asset_Financer': null,
+            'Asset_Financier_Name': "",
+            'ntsaClearance': "",
+            'yearOfManufacture': "",
+            'Make': "",
+            'bodyType': "",
+            'Fuel_Type': "",
+            'Pickup_Location': ""
+        });
+}
