@@ -1,0 +1,37 @@
+var form = ZDK.Page.getForm();
+var formValues = form.getValues();
+
+var order_lookup = formValues.Order;
+
+var order = ZDK.Apps.CRM.Orders.fetchById(order_lookup.id);
+console.log("Order Details", order);
+
+let asset_financier_id = order.Asset_Financer_Lookup_Id;
+let asset_Financer_Name = order.Asset_Financer_Name;
+let order_tag = (order.Tag && order.Tag.length > 0) ? order.Tag[0].name : null;
+
+
+let allAssetFinancerFieldsFilled =
+            formValues.Vehicle_ownership_changed_to_KCB &&
+            formValues.Vehicle_ownership_changed_to_Customer &&
+            formValues.inspectionValidity &&
+            formValues.logbookNumber &&
+            formValues.engineNumber &&
+            formValues.ntsaClearance &&
+            formValues.yearOfManufacture &&
+            formValues.Make &&
+            formValues.Fuel_Type &&
+            formValues.Asset_Financer && formValues.Asset_Financer.id && formValues.Asset_Financer.name;
+
+if (order_tag === "External" && asset_Financer_Name === "KCB") {
+
+    if (allAssetFinancerFieldsFilled) {
+        var a = ZDK.Page.getField('Status');
+        a.setValue('Ready for Delivery');
+    }
+    else {
+        var a = ZDK.Page.getField('Status');
+        a.setValue('Awaiting Battery Assignment');
+
+    }
+}
